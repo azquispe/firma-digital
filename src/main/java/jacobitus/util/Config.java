@@ -31,9 +31,6 @@ public class Config {
 
     public Config() {
         try {
-
-
-
             options = new Properties();
             user = new File(FileSystemView.getFileSystemView().getDefaultDirectory(), "Jacobitus/AQUISPE");
             fileOptions = new File(user, "jacobitus.properties");

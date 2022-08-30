@@ -7,6 +7,8 @@ import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.StampingProperties;
 import com.itextpdf.signatures.*;
 import jacobitus.token.ExternalSignatureLocal;
+import jacobitus.token.Token;
+
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -20,8 +22,18 @@ import java.util.List;
 import java.util.Map;
 
 public class FuncionesFirma {
-    public static Boolean firmar(File file, PrivateKey pk, Certificate[] chain, String provider) {
+
+    public static Boolean firmar(File file, Token token) {
         try {
+
+            List<String> llaves =  token.listarIdentificadorClaves();
+
+            PrivateKey pk = token.obtenerClavePrivada(llaves.get(0));
+            //Certificate[] chain = null; // para simular error  2007
+            Certificate[] chain =  token.getCertificateChain(llaves.get(0));
+
+            String provider = token.getProviderName();
+
             PdfReader reader = new PdfReader(file);
             StampingProperties stamp = new StampingProperties();
             stamp.useAppendMode();
@@ -38,6 +50,9 @@ public class FuncionesFirma {
             return false;
         } catch (GeneralSecurityException ex) {
             System.err.println("Error inesperado al firmar el documetno.");
+            return false;
+        }
+        catch (Exception ex){
             return false;
         }
     }
