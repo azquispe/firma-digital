@@ -20,7 +20,7 @@ public class ConstDiccionarioMensajeFirma {
     public static final String COD2007 = "COD2007";
     public static final String COD2007_MENSAJE = "No se pudo firmar el documento 'pdf'";
     public static final String COD2008 = "COD2008";
-    public static final String COD2008_MENSAJE = "Se han encontrado errores";
+    public static final String COD2008_MENSAJE = "Se han encontrado errores ...";
 
 
     public static final String COD2009 = "COD2009";
