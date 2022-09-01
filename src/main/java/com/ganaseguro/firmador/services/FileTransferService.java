@@ -5,6 +5,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import com.ganaseguro.firmador.dto.ResponseDto;
+import com.ganaseguro.firmador.utils.constantes.ConstDiccionarioMensajeFirma;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,7 +58,8 @@ public class FileTransferService implements IFileTransferService {
     }
 
     @Override
-    public boolean downloadFile(String localFilePath, String remoteFilePath) {
+    public ResponseDto downloadFile(String localFilePath, String remoteFilePath) {
+        ResponseDto resp = new ResponseDto();
         ChannelSftp channelSftp = createChannelSftp();
         OutputStream outputStream;
         try {
@@ -64,14 +67,16 @@ public class FileTransferService implements IFileTransferService {
             outputStream = new FileOutputStream(file);
             channelSftp.get(remoteFilePath, outputStream);
             file.createNewFile();
-            return true;
+            resp.setCodigo(ConstDiccionarioMensajeFirma.COD1000);
+            return resp;
         } catch(SftpException | IOException ex) {
-           logger.error("Error download file", ex);
+            resp.setCodigo(ConstDiccionarioMensajeFirma.COD2000);
+            resp.setMensaje(ConstDiccionarioMensajeFirma.COD2000_MENSAJE+" : "+ex);
+            return resp;
         } finally {
             disconnectChannelSftp(channelSftp);
         }
 
-        return false;
     }
 
 

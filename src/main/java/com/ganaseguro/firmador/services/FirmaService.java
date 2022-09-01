@@ -96,9 +96,9 @@ public class FirmaService implements IFirmaService {
 
 
 
-                boolean esDescargadoDelSftp = iFileTransferService.downloadFile( vSoftokenLocal, objUsuarios.getUserName() + "/softoken.p12");
-                if(!esDescargadoDelSftp){
-                    logObservaciones.add(ConstDiccionarioMensajeFirma.COD2003+" - "+ConstDiccionarioMensajeFirma.COD2003_MENSAJE+", con el usuario: "+objUsuarios.getUserName()+", al acceder por FTPS" );
+                ResponseDto esDescargadoDelSftp = iFileTransferService.downloadFile( vSoftokenLocal, objUsuarios.getUserName() + "/softoken.p12");
+                if(!esDescargadoDelSftp.getCodigo().equals(ConstDiccionarioMensajeFirma.COD1000)){
+                    logObservaciones.add(ConstDiccionarioMensajeFirma.COD2003+" - "+ConstDiccionarioMensajeFirma.COD2003_MENSAJE+", con el usuario: "+objUsuarios.getUserName()+", al acceder por FTPS,  otro error:"+esDescargadoDelSftp.getMensaje() );
                     continue;
                 }
 
