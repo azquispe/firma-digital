@@ -16,6 +16,8 @@ import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -39,20 +41,32 @@ import static jacobitus.validar.Validar.verificarPKI;
 @Service
 public class FirmaService implements IFirmaService {
 
-    @Value("${dir.softoken}")
-    private String dirSoftoken;
 
-    @Value("${dir.docFirmado}")
-    private String dirdocFirmado;
+
+    @Value("${softoken.sitio}")
+    private String softokenSitio;
+
+    @Value("${documento.firmado}")
+    private String documentoFirmado;
 
     @Autowired
-    IEncryptDecryptService iEncryptDecryptService;
+    private IEncryptDecryptService iEncryptDecryptService;
 
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+    @Autowired
+    private IFileTransferService iFileTransferService;
+
+    private Logger logger = LoggerFactory.getLogger(FirmaService.class);
+
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+
 
 
     @Override
     public ResponseDto firmar(RequestFirmarDto requestFirmarDto) {
+
+        String vSoftokenLocal = softokenSitio + "/softoken.p12";
+
+
         ResponseDto result = new ResponseDto();
         List<String> logObservaciones = new ArrayList<>();
         try {
@@ -75,14 +89,25 @@ public class FirmaService implements IFirmaService {
                 }
 
                 // VALIDAMOS QUE EXISTA CERTIFICADOS
-                String pathSofToken = dirSoftoken + "/" + objUsuarios.getUserName() + "/softoken.p12";
-                File file = new File(pathSofToken);
+
+
+
+                boolean esDescargadoDelSftp = iFileTransferService.downloadFile( vSoftokenLocal, objUsuarios.getUserName() + "/softoken.p12");
+                if(!esDescargadoDelSftp){
+                    logObservaciones.add(ConstDiccionarioMensajeFirma.COD2003+" - "+ConstDiccionarioMensajeFirma.COD2003_MENSAJE+", con el usuario: "+objUsuarios.getUserName()+", al acceder por FTPS" );
+                    continue;
+                }
+
+
+
+
+                File file = new File(vSoftokenLocal);
                 if (!file.exists()) {
                     logObservaciones.add(ConstDiccionarioMensajeFirma.COD2003+" - "+ConstDiccionarioMensajeFirma.COD2003_MENSAJE+", con el usuario: "+objUsuarios.getUserName() );
                     continue;
                 }
 
-                Token token = new TokenPKCS12(new Slot(pathSofToken));
+                Token token = new TokenPKCS12(new Slot(vSoftokenLocal));
 
                 //VALIDAMOS QUE EL PIN SEA CORRECTO
                 try {
@@ -103,18 +128,18 @@ public class FirmaService implements IFirmaService {
 
                     //GUARDAMOS PDF 64 EN UNA UBICACION FISICA
                     try {
-                        FuncionesGenericos.saveBase64ToFile(pdf, dirdocFirmado + "/documento.pdf");
+                        FuncionesGenericos.saveBase64ToFile(pdf, documentoFirmado + "/documento.pdf");
                     } catch (Exception ex) {
                         logObservaciones.add(ConstDiccionarioMensajeFirma.COD2005+" - "+ConstDiccionarioMensajeFirma.COD2005_MENSAJE+", con el usuario: "+objUsuarios.getUserName() );
                     }
 
 
                     //SE FIRMA LOS PDFS
-                    Boolean firmado_Correcto = FuncionesFirma.firmar(new File(dirdocFirmado + "/documento.pdf"), token);
+                    Boolean firmado_Correcto = FuncionesFirma.firmar(new File(documentoFirmado + "/documento.pdf"), token);
                     if (!firmado_Correcto) {
                         logObservaciones.add(ConstDiccionarioMensajeFirma.COD2007+" - "+ConstDiccionarioMensajeFirma.COD2007_MENSAJE+", con el usuario: "+objUsuarios.getUserName() );
                     }
-                    String base64Firmado = FuncionesGenericos.pdfToBase64(dirdocFirmado + "/documento.firmado.pdf");
+                    String base64Firmado = FuncionesGenericos.pdfToBase64(documentoFirmado + "/documento.firmado.pdf");
                     lstArchivosFirmados.add(base64Firmado);
 
 
@@ -227,7 +252,11 @@ public class FirmaService implements IFirmaService {
         ResponseDto response = new ResponseDto();
         try {
 
-            String pathSofToken = dirSoftoken + "/" + usuariosFirmantesDto.getUserName() + "/softoken.p12";
+
+            // antes hayq  obtener del SFTP certificado
+            // ......
+            String pathSofToken = softokenSitio + "/softoken.p12";
+
             File file = new File(pathSofToken);
             // VALIDAMOS SI EXISTE CARPETA DEL USUARIO
             if (!file.exists()) {
