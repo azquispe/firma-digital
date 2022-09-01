@@ -59,6 +59,10 @@ public class FirmaService implements IFirmaService {
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 
+    public static final String storageConnectionString =
+            "DefaultEndpointsProtocol=https;" +
+                    "AccountName=alvaro.quispe@bg.com.bo;" +
+                    "AccountKey=BAnco2022++++";
 
 
     @Override

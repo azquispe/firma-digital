@@ -94,6 +94,13 @@
             <version>0.1.55</version>
         </dependency>
 
+        <!-- para acceder directaente al store de azure -->
+        <dependency>
+            <groupId>com.azure.spring</groupId>
+            <artifactId>spring-cloud-azure-starter-storage-blob</artifactId>
+            <version>4.2.0</version>
+        </dependency>
+
 
 
     </dependencies>
