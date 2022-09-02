@@ -57,8 +57,8 @@ public class FuncionesGenericos {
     }
 
 
-    public static void saveBase64ToFile(String pBase64, String pPath) throws Exception {
-        File file = new File(pPath);
+    public static void saveBase64ToFile(String pBase64, File file ) throws Exception {
+        //File file = new File(pPath);
         FileOutputStream fos = new FileOutputStream(file);
         byte[] decoder = Base64.getDecoder().decode(pBase64);
         fos.write(decoder);

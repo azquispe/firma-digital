@@ -58,12 +58,16 @@ public class FileTransferService implements IFileTransferService {
     }
 
     @Override
-    public ResponseDto downloadFile(String localFilePath, String remoteFilePath) {
+    public ResponseDto downloadFile( String localFilePath, String remoteFilePath) {
         ResponseDto resp = new ResponseDto();
         ChannelSftp channelSftp = createChannelSftp();
         OutputStream outputStream;
         try {
-            File file = new File(localFilePath);
+            //File file = new File(localFilePath);
+            ClassLoader classLoader = getClass().getClassLoader();
+            File file = new File(classLoader.getResource("softoken_tem").getFile() + "/softoken.p12");
+
+
             outputStream = new FileOutputStream(file);
             channelSftp.get(remoteFilePath, outputStream);
             file.createNewFile();
@@ -73,7 +77,12 @@ public class FileTransferService implements IFileTransferService {
             resp.setCodigo(ConstDiccionarioMensajeFirma.COD2000);
             resp.setMensaje(ConstDiccionarioMensajeFirma.COD2000_MENSAJE+" : "+ex);
             return resp;
-        } finally {
+        }catch (Exception ex){
+            resp.setCodigo(ConstDiccionarioMensajeFirma.COD2000);
+            resp.setMensaje(ConstDiccionarioMensajeFirma.COD2000_MENSAJE+" : "+ex);
+            return resp;
+        }
+        finally {
             disconnectChannelSftp(channelSftp);
         }
 
