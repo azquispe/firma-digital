@@ -8,6 +8,7 @@ import com.itextpdf.signatures.*;
 import jacobitus.token.ExternalSignatureLocal;
 
 import java.io.*;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
@@ -22,8 +23,9 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class FuncionesGenericos {
-    public static String pdfToBase64(String pPathFile) {
+    public static String pdfToBase64(URI pPathFile) {
         try {
+
             byte[] input_file = Files.readAllBytes(Paths.get(pPathFile));
             byte[] encodedBytes = Base64.getEncoder().encode(input_file);
             return  new String(encodedBytes);
@@ -57,8 +59,9 @@ public class FuncionesGenericos {
     }
 
 
-    public static void saveBase64ToFile(String pBase64, File file ) throws Exception {
-        //File file = new File(pPath);
+    public static void saveBase64ToFile(String pBase64, String pPath ) throws Exception {
+
+        File file = new File(pPath);
         FileOutputStream fos = new FileOutputStream(file);
         byte[] decoder = Base64.getDecoder().decode(pBase64);
         fos.write(decoder);

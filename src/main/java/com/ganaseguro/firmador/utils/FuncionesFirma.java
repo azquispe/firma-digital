@@ -37,7 +37,7 @@ public class FuncionesFirma {
             PdfReader reader = new PdfReader(file);
             StampingProperties stamp = new StampingProperties();
             stamp.useAppendMode();
-            PdfSigner signer = new PdfSigner(reader, new FileOutputStream(file.getPath().replace(".pdf", ".firmado.pdf")), stamp);
+            PdfSigner signer = new PdfSigner(reader, new FileOutputStream(file.getPath().replace(".pdf", "_firmado.pdf")), stamp);
             Rectangle rect = new Rectangle(0, 0, 0, 0);
             PdfSignatureAppearance appearance = signer.getSignatureAppearance();
             appearance.setPageRect(rect);

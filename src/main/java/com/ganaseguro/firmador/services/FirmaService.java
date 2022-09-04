@@ -127,9 +127,7 @@ public class FirmaService implements IFirmaService {
 
                     //GUARDAMOS PDF 64 EN UNA UBICACION FISICA
                     try {
-                        File fileDocumentPdf = new File(classLoader.getResource(pathDocumentoPdf).getFile());
-                        fileDocumentPdf.createNewFile();
-                        FuncionesGenericos.saveBase64ToFile(pdf, fileDocumentPdf);
+                        FuncionesGenericos.saveBase64ToFile(pdf,  getClass().getClassLoader().getResource("documento.pdf").getFile());
                     } catch (FileNotFoundException e) {
                         logObservaciones.add(ConstDiccionarioMensajeFirma.COD2005 + " - " + ConstDiccionarioMensajeFirma.COD2005_MENSAJE + ", con el usuario: " + objUsuarios.getUserName());
                     } catch (IOException e) {
@@ -140,11 +138,13 @@ public class FirmaService implements IFirmaService {
 
 
                     //SE FIRMA LOS PDFS
-                    Boolean firmado_Correcto = FuncionesFirma.firmar(new File(classLoader.getResource(pathDocumentoPdf).getFile()), token);
+                    Boolean firmado_Correcto = FuncionesFirma.firmar(new File( getClass().getClassLoader().getResource("documento.pdf").getFile()), token);
                     if (!firmado_Correcto) {
                         logObservaciones.add(ConstDiccionarioMensajeFirma.COD2007 + " - " + ConstDiccionarioMensajeFirma.COD2007_MENSAJE + ", con el usuario: " + objUsuarios.getUserName());
                     }
-                    String base64Firmado = FuncionesGenericos.pdfToBase64(classLoader.getResource(pathDocumentoFirmadoPdf).getFile());
+                    //String base64Firmado = FuncionesGenericos.pdfToBase64( getClass().getClassLoader().getResource("documento_firmado.pdf").getFile() );
+                    String base64Firmado = FuncionesGenericos.pdfToBase64( ClassLoader.getSystemResource("documento_firmado.pdf").toURI() );
+
                     lstArchivosFirmados.add(base64Firmado);
 
 
@@ -154,17 +154,16 @@ public class FirmaService implements IFirmaService {
 
             }
 
-            int numero_documento = 1;
+            /*int numero_documento = 1;
             for (String base64Firmado : requestFirmarDto.getListaPdf()) {
                 ResponseDto resp = this.verificarFirmasPdf(base64Firmado);
                 if (!resp.getCodigo().equals(ConstDiccionarioMensajeFirma.COD1000)) {
-                    //logObservaciones.add(ConstDiccionarioMensajeFirma.COD2009+" - "+ConstDiccionarioMensajeFirma.COD2009_MENSAJE);
                     logObservaciones.add(resp.getCodigo() + " - " + resp.getMensaje());
                 }
                 List<Map<String, Object>> lstFirmas = (List<Map<String, Object>>) resp.getElementoGenerico();
                 logObservaciones.addAll(FuncionesFirma.verificarObservacionEnFirmas(lstFirmas, numero_documento));
                 numero_documento++;
-            }
+            }*/
 
 
         } catch (Exception ex) {
